@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ACME Collections — Secure Payment</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f3ee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 60px;
+      color: #1a1a1a;
+    }
+
+    header {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    header img {
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 520px;
+      padding: 36px 40px;
+      border: 0.5px solid #dddbd4;
+    }
+
+    .greeting {
+      font-size: 22px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .subtext {
+      font-size: 14px;
+      color: #6b6b6b;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .balance-box {
+      background: #f4f3ee;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .balance-label {
+      font-size: 13px;
+      color: #6b6b6b;
+      font-weight: 400;
+      margin-bottom: 4px;
+    }
+
+    .balance-amount {
+      font-size: 32px;
+      font-weight: 600;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+    }
+
+    .balance-ref {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .badge {
+      background: #fff3cd;
+      color: #7d5a00;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 0.5px;
+      background: #e8e6e0;
+      margin-bottom: 28px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    input {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #dddbd4;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 15px;
+      color: #1a1a1a;
+      background: #fff;
+      transition: border-color 0.15s;
+      outline: none;
+      font-family: inherit;
+    }
+
+    input:focus {
+      border-color: #c8a84b;
+      box-shadow: 0 0 0 3px rgba(200, 168, 75, 0.12);
+    }
+
+    input::placeholder {
+      color: #bbb;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .pay-btn {
+      width: 100%;
+      height: 50px;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+      letter-spacing: 0.2px;
+      transition: background 0.15s, transform 0.1s;
+      font-family: inherit;
+    }
+
+    .pay-btn:hover { background: #333; }
+    .pay-btn:active { transform: scale(0.99); }
+
+    .secure-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 16px;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .secure-note svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+    }
+
+    .plan-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #6b6b6b;
+    }
+
+    .plan-link a {
+      color: #c8a84b;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .plan-link a:hover { text-decoration: underline; }
+
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: #eafbef;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .success-icon svg {
+      width: 32px;
+      height: 32px;
+      color: #2d9e5f;
+    }
+
+    .success-title {
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .success-sub {
+      font-size: 14px;
+      color: #6b6b6b;
+      line-height: 1.6;
+    }
+
+    .card-icons {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .card-icon {
+      height: 22px;
+      border: 0.5px solid #e0ddd6;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      color: #444;
+      background: #fafaf8;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #999;
+      margin-bottom: 16px;
+    }
+
+    footer {
+      margin-top: 32px;
+      font-size: 11px;
+      color: #aaa;
+      text-align: center;
+      max-width: 520px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="data:image/jpeg;base64,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" alt="ACME Collections" />
+  </header>
+
+  <div class="card">
+
+    <div id="payment-form">
+      <p class="greeting">Hi Carlos, welcome back.</p>
+      <p class="subtext">You have an outstanding balance with Vanta Credit Union. Review the details below and complete your payment securely.</p>
+
+      <div class="balance-box">
+        <div>
+          <p class="balance-label">Amount due</p>
+          <p class="balance-amount">$1,847.00</p>
+          <p class="balance-ref">Ref# 421498127 &nbsp;&middot;&nbsp; Vanta Credit Union</p>
+        </div>
+        <span class="badge">Past due</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <p class="section-label">Card details</p>
+
+      <div class="card-icons">
+        <span class="card-icon">VISA</span>
+        <span class="card-icon">MC</span>
+        <span class="card-icon">AMEX</span>
+        <span class="card-icon">DISC</span>
+      </div>
+
+      <div class="field">
+        <label for="card-name">Name on card</label>
+        <input type="text" id="card-name" placeholder="Carlos Rivera" autocomplete="cc-name" />
+      </div>
+
+      <div class="field">
+        <label for="card-number">Card number</label>
+        <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number" inputmode="numeric" />
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="expiry">Expiry</label>
+          <input type="text" id="expiry" placeholder="MM / YY" maxlength="7" autocomplete="cc-exp" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label for="cvv">CVV</label>
+          <input type="text" id="cvv" placeholder="123" maxlength="4" autocomplete="cc-csc" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="zip">Billing ZIP code</label>
+        <input type="text" id="zip" placeholder="78201" maxlength="10" inputmode="numeric" />
+      </div>
+
+      <button class="pay-btn" onclick="handlePayment()">Pay $1,847.00</button>
+
+      <p class="secure-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        Secured with 256-bit SSL encryption
+      </p>
+
+      <p class="plan-link">
+        Need a payment plan? <a href="#">Set one up at acl-us.info</a> or call <a href="tel:8005553245">800-555-3245</a>
+      </p>
+    </div>
+
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <p class="success-title">Payment received</p>
+      <p class="success-sub">
+        Thank you, Carlos. Your payment of <strong>$1,847.00</strong> has been processed.<br><br>
+        A confirmation will be sent to you shortly. Your account with Vanta Credit Union is now settled.<br><br>
+        Ref# 421498127
+      </p>
+    </div>
+
+  </div>
+
+  <footer>
+    ACME Collections is a licensed debt collector. This is an attempt to collect a debt.<br>
+    Any information obtained will be used for that purpose.<br><br>
+    Questions? Call 800-555-3245 or visit acl-us.info
+  </footer>
+
+  <script>
+    const cardNumber = document.getElementById('card-number');
+    cardNumber.addEventListener('input', function () {
+      let val = this.value.replace(/\D/g, '').substring(0, 16);
+      this.value = val.replace(/(.{4})/g, '$1 ').trim();
+    });
+
+    const expiry = document.getElementById('expiry');
+    expiry.addEventListener('input', function () {
+      let val = this.value.replace(/\D/g, '').substring(0, 4);
+      if (val.length >= 3) val = val.substring(0, 2) + ' / ' + val.substring(2);
+      this.value = val;
+    });
+
+    function handlePayment() {
+      const name = document.getElementById('card-name').value.trim();
+      const num = document.getElementById('card-number').value.trim();
+      const exp = document.getElementById('expiry').value.trim();
+      const cvv = document.getElementById('cvv').value.trim();
+      const zip = document.getElementById('zip').value.trim();
+
+      if (!name || !num || !exp || !cvv || !zip) {
+        alert('Please fill in all fields before continuing.');
+        return;
+      }
+
+      document.getElementById('payment-form').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
